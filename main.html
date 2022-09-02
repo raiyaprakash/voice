@@ -1,0 +1,2347 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <meta name="theme-color" content="orangered">-->
+
+    <title>Type with your voice! </title>
+	<style>@charset "utf-8";
+:root {
+    --primary-color: darkslategray;
+    --primary-alt-color: rgb(0, 139, 139);
+    --secondary-color: orangered;
+    --secondary-alt-color: orangered;
+    --mic-color: orangered;
+    --color-linear-1: linear-gradient(155deg, #1fb851, #565ccf);
+    --color-bottom-m: #4e705e;
+    --color-bottom-status: #e1eeb8;
+    --color-note-main: darkcyan;
+    --color-dictionary-main: rgb(99, 165, 0);
+}
+
+.darkBackground {
+    background: black !important;
+    background-color: black !important;
+    color: white;
+}
+
+
+* {
+    padding: 0px;
+    margin: 0px;
+    border: 0px;
+}
+
+html, body {
+    height: 100%;
+    width: 100%;
+    margin: 0px;
+    padding: 0px;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+body {
+    background-color: white;
+    /*background-image: url(img/background.jpg);*/
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+a:hover {
+    color: grey;
+}
+
+#app {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 100%; /* adsense injecting "height: auto !important" to "height" FIX*/
+    width: 100%;
+    background-color: beige;
+    z-index: 5;
+}
+
+#top-ad {
+    display: none;
+    width: 100%;
+    height: 62px;
+    background-color: #6b6b6b;
+}
+
+#top-navbar {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    min-height: 64px;
+    background-color: var(--primary-color);
+    padding: 0 10px;
+    background: var(--color-linear-1);
+    box-shadow: rgba(0, 0, 0, 0.14) 0px 2px 2px 0px, rgba(0, 0, 0, 0.12) 0px 3px 1px -2px, rgba(0, 0, 0, 0.2) 0px 1px 5px 0px;
+}
+
+#brand {
+    display: flex;
+    color: white;
+    font-size: 32px;
+    font-family: 'Trebuchet MS', sans-serif;
+}
+
+#logo {
+    width: 40px;
+    height: 40px;
+    color: white;
+}
+
+#lang-flag-display {
+    display: inline-block;
+    background-image: url(img/flags/united_states.png);
+    border: 1px solid white;
+    min-height: 20px;
+    min-width: 20px;
+    border-radius: 50%;
+    background-size: cover;
+    background-position: center;
+}
+
+#lang-name-display {
+    padding-left: 5px;
+    /*word-break: keep-all;*/
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+#b-group {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    min-width: 0;
+    /* keep for Truncated Text (language name) */
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    position: absolute;
+    display: none;
+    flex-direction: column;
+    box-sizing: border-box;
+    background-color: #6b6b6b;
+    box-shadow: 0px 8px 16px 0px rgb(0 0 0 / 20%);
+    padding: 0px;
+    z-index: 200;
+}
+
+.dropdown:hover .dropdown-content {
+    display: flex;
+}
+
+#main {
+    width: 100%;
+    background-color: transparent;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: row;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+#panel-left {
+    display: flex;
+    flex-direction: column;
+    width: 336px;
+    min-width: 336px;
+    height: 300px;
+}
+
+#note-wrapper-outer {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    flex-grow: 1;
+    /*height: 100%;*/
+    margin: 0 10px;
+    background-color: white;
+    box-shadow: 0 8px 6px -6px rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--color-note-main);
+}
+
+#note-title {
+    display: flex;
+    flex-shrink: 0;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    /*flex-grow: 1;*/
+    color: white;
+    text-align: center;
+    background-color: var(--color-note-main);
+    border-bottom: 1px solid var(--color-note-main);
+}
+
+.group-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+#note-info {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2px 10px;
+    min-height: 20px;
+    box-sizing: border-box;
+    color: var(--color-note-main);
+}
+
+#warning {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: brown;
+    color: white;
+    box-sizing: border-box;
+    padding: 10px;
+    width: 100%;
+    font-size: larger;
+    line-height: 1.5;
+}
+
+.warning-play {
+    animation: warning-animation 1000ms 1;
+}
+
+@keyframes warning-animation {
+    0% {
+        background-color: brown;
+    }
+    70% {
+        background-color: red;
+    }
+    100% {
+        background-color: brown;
+    }
+}
+
+.hidden {
+    display: none !important;
+}
+
+#note-wrapper-inner {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    flex-grow: 1;
+    /*height: 100%;*/
+    padding: 10px 0 0 0;
+    margin: 0 10px;
+}
+
+#note {
+    outline: none !important;
+    flex-basis: 0px;
+    flex-grow: 1;
+    overflow-y: auto;
+    word-break: break-word;
+}
+
+.p_edit {
+    font-family: Arial, Helvetica Neue, Helvetica, sans-serif;
+    margin-bottom: 10px;
+    min-height: 1px;
+    /* min-height: 1px - let text to be inserted inside <p></p> in the first line of contenteditable    */
+}
+
+.dir_LTR {
+    direction: ltr !important;
+}
+
+.dir_RTL {
+    direction: rtl !important;
+}
+
+#main-title {
+    margin: auto;
+    width: 340px;
+    min-height: 50px;
+    text-align: center;
+}
+
+.separator {
+    color: rgba(255, 255, 255, 0.5)
+}
+
+.c-icon {
+    color: white;
+}
+
+.g-center {
+    display: none;
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+#panel-right {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    width: 336px;
+    box-shadow: 0 8px 6px -6px rgba(0, 0, 0, 0.3);
+    flex-shrink: 0;
+}
+
+#dictionary {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    background-color: rgba(121, 201, 0, 0.164);
+    transform-origin: top;
+    transition: transform 0.2s ease;
+    border: 1px solid var(--color-dictionary-main);
+}
+
+#dictionary-title {
+    display: flex;
+    justify-content: flex-end;
+    flex-direction: row;
+    align-items: center;
+    padding: 0px 10px;
+    height: 48px;
+    background-color: var(--color-dictionary-main);
+    border-bottom: 1px solid white;
+    color: white;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+.disabled-color {
+    background-color: darkgray !important;
+}
+
+#group-b-dict {
+    display: flex;
+    flex-direction: row;
+}
+
+#dict-main {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+}
+
+#dict-content {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    flex: 1 1 50px;
+    padding: 5px;
+    box-sizing: border-box;
+    transform: scaleY(1);
+    transform-origin: top;
+    transition: transform 0.2s ease;
+}
+
+.dict-row {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 30px;
+    padding: 2px;
+    word-break: break-all;
+}
+
+.dict-row:hover {
+    background-color: rgba(0, 0, 0, 0.123);
+}
+
+.dict-w1 {
+    flex: 2;
+    box-sizing: border-box;
+    margin: 0 4px;
+    padding: 0 5px;
+    min-height: 10px;
+    text-align: right;
+    word-break: break-word;
+}
+
+.dict-w2 {
+    flex: 1;
+    box-sizing: border-box;
+    margin-right: 14px;
+    padding: 0 5px;
+    min-height: 10px;
+    text-align: left;
+    word-break: break-word;
+}
+
+
+.dict-w-preset {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 0 10px;
+    color: darkgreen;
+    border: 1px solid darkgreen;
+    cursor: pointer;
+}
+
+.dict-w-preset:hover {
+    color: red;
+    border: 1px solid red;
+}
+
+.dict-w-delete {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 0 10px;
+    color: darkgreen;
+    border: 1px solid transparent;
+    cursor: pointer;
+}
+
+.dict-w-delete:hover {
+    color: red;
+    border: 1px solid red;
+}
+
+.empty-cell {
+    box-sizing: border-box;
+    background-color: darkseagreen;
+}
+
+.custom-row {}
+
+#dict-add-word {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    color: rgb(120, 201, 0);
+    font-weight: bolder;
+    font-size: x-large;
+}
+
+#bottom-navbar {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    background-color: #9e9e9e;
+    height: 64px;
+    line-height: 64px;
+}
+
+.width-limiter {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 70%;
+    max-width: 1280px;
+}
+
+.container {
+    color: #1e90ff;
+    background-color: #ffffff;
+    padding: 15px;
+}
+
+button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: transparent;
+    cursor: pointer;
+    height: 48px;
+    vertical-align: middle;
+    min-width: 48px;
+    font-size: 16px;
+    padding: 0 12px;
+}
+
+button:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.b-selected {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.wave {
+    position: relative;
+    overflow: hidden;
+    transition: background 400ms;
+    color: #fff;
+    outline: 0;
+    border: 0;
+    border-radius: 0.25rem;
+}
+
+span.ripple {
+    position: absolute;
+    border-radius: 50%;
+    transform: scale(0);
+    animation: ripple 600ms linear;
+    background-color: rgba(255, 255, 255, 0.7);
+}
+
+/* POPUP MENU START*/
+
+.popup-overlay {
+    display: flex;
+    box-sizing: border-box;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 70px 10px 10px 10px;
+    z-index: 50;
+}
+
+.popup-menu {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    min-width: 150px;
+    max-width: 500px;
+    width: 100%;
+    max-height: 60%;
+    color: black;
+    background-color: white;
+    pointer-events: all;
+    font-size: large;
+    box-shadow: 0 8px 6px -6px rgba(0, 0, 0, 0.3);
+}
+
+.popup-menu button {
+    display: flex;
+    color: black;
+    justify-content: center;
+    align-content: center;
+    min-height: 48px;
+}
+
+.popup-menu span {
+    color: black;
+    justify-content: flex-start;
+    align-content: center;
+    padding: 0 20px;
+}
+
+.settings-hint {
+    font-size: smaller;
+    color: var(--primary-alt-color) !important;
+    margin-bottom: 10px;
+}
+
+.popup-menu-title {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    min-height: 48px;
+    box-sizing: border-box;
+    padding: 5px;
+    color: white;
+    background-color: var(--primary-color);
+}
+
+.popup-menu-title-text {
+    padding: 0px 10px;
+}
+
+#app-info {
+    color: grey;
+    font-size: smaller;
+    margin-left: auto;
+}
+
+
+.popup-menu-content {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: auto;
+    overflow-y: scroll;
+    box-sizing: border-box;
+    padding: 10px;
+}
+
+.popup-menu-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 48px;
+}
+
+.popup-menu-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.popup-menu-list {
+    display: flex;
+    flex-direction: column;
+    max-height: 70vh;
+    overflow-y: scroll;
+}
+
+.popup-menu-response {}
+
+/* POPUP MENU END*/
+
+#m-download {
+    display: none;
+}
+
+#m-settings {
+    display: none;
+}
+
+#m-font-select {
+    display: none;
+}
+
+#popupOverlayMenu {
+    display: none;
+}
+
+#m-fontlist {
+    display: none;
+}
+
+/* DIALOG START*/
+
+#overlay-dialog {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: 0px;
+    width: 100%;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 50;
+}
+
+#dialog {
+    display: flex;
+    flex-direction: column;
+    min-width: 150px;
+    margin: 90px 10px 10px 10px;
+    background-color: white;
+    pointer-events: all;
+    font-size: large;
+    box-shadow: 0 8px 6px -6px rgba(0, 0, 0, 0.3);
+}
+
+#dialog-title {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    height: auto;
+    box-sizing: border-box;
+    padding: 5px;
+    color: white;
+    background-color: var(--primary-color);
+}
+
+#dialog-title-text {
+    padding: 0px 10px;
+}
+
+#dialog-b-close {
+    cursor: pointer;
+}
+
+#dialog-content {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: auto;
+    box-sizing: border-box;
+    padding: 10px;
+}
+
+#dialog-response {
+    display: flex;
+    flex-direction: row;
+}
+
+#dialog-checkbox-row {
+    display: none;
+    padding: 10px;
+}
+
+#dialog-no {
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    align-items: center;
+    color: red;
+    font-weight: bolder;
+    padding: 10px;
+    cursor: pointer;
+}
+
+#dialog-yes {
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    align-items: center;
+    color: green;
+    font-weight: bolder;
+    padding: 10px;
+    cursor: pointer;
+}
+
+/* DIALOG END*/
+
+#overlay-settings {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: 0px;
+    width: 100%;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 50;
+}
+
+#modal {
+    display: flex;
+    flex-direction: column;
+    margin: 10px;
+    background-color: white;
+    pointer-events: all;
+    font-size: large;
+    box-shadow: 0 8px 6px -6px rgba(0, 0, 0, 0.3);
+}
+
+#modal-title {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    height: auto;
+    box-sizing: border-box;
+    padding: 5px;
+    color: white;
+    background-color: var(--primary-color);
+}
+
+#modal-b-close {
+    cursor: pointer;
+}
+
+#modal-content {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: auto;
+    box-sizing: border-box;
+    padding: 10px;
+}
+
+.modal-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 20px;
+}
+
+.modal-row-text {
+    padding-right: 20px;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 22px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 17px;
+    width: 17px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+
+input:checked+.slider {
+    background-color: var(--primary-alt-color);
+}
+
+input:focus+.slider {
+    box-shadow: 0 0 1px var(--primary-alt-color);
+}
+
+input:checked+.slider:before {
+    -webkit-transform: translateX(17px);
+    -ms-transform: translateX(17px);
+    transform: translateX(17px);
+}
+
+/* Rounded sliders */
+
+.slider.round {
+    border-radius: 22px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
+
+@keyframes ripple {
+    to {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+
+#overlay-lang {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: 0px;
+    width: 100%;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 50;
+}
+
+#popup-lang {
+    display: flex;
+    flex-direction: column;
+    height: 70%;
+    min-width: 55%;
+    max-width: 600px;
+    border-radius: 2px;
+    background-color: white;
+}
+
+#lang-menu-filter {
+    flex-grow: 1;
+    border-bottom: 1px solid var(--primary-alt-color);
+    outline: none;
+    font-size: x-large;
+    margin: 0 10px;
+}
+
+#lang-menu-content {
+    height: 90%;
+    overflow-y: scroll;
+}
+
+.lang-option {
+    word-break: keep-all;
+    display: flex;
+    align-items: center;
+    font-size: larger;
+    padding: 5px;
+    cursor: pointer;
+    color: black;
+}
+
+.lang-option:hover {
+    background: var(--color-linear-1);
+    color: white;
+}
+
+.flag {
+    border: 3px solid white;
+    min-height: 30px;
+    min-width: 30px;
+    border-radius: 50%;
+    background-size: cover;
+    background-position: center;
+}
+
+.option-line-1 {
+    flex-basis: 50%;
+    text-align: right;
+    padding: 5px;
+}
+
+.option-line-2 {
+    flex-basis: 50%;
+    text-align: left;
+    padding: 5px;
+}
+
+.ctrlq {
+    font-size: small;
+    color: darkorange;
+}
+
+.option-fav {
+    font-size: xx-large;
+    color: darkorange;
+}
+
+#overlay-speech {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: 0px;
+    width: 100%;
+    height: 100vh;
+    background-color: transparent;
+    z-index: 50;
+    pointer-events: none;
+}
+
+#speech-box {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color:  rgb(39, 39, 39);
+    color: white;
+    margin: auto;
+    min-width: 200px;
+    max-width: 50%;
+    min-height: 20px;
+    max-height: 30%;
+    padding: 10px;
+    pointer-events: auto;
+    font-size: larger;
+    line-height: 1.5;
+    overflow-y: auto;
+    box-shadow: 0 10px 10px -6px rgba(0, 0, 0, 0.3);
+    border-radius: 15px;
+}
+
+.noselect {
+    -webkit-touch-callout: none;
+    /* iOS Safari */
+    -webkit-user-select: none;
+    /* Safari */
+    -khtml-user-select: none;
+    /* Konqueror HTML */
+    -moz-user-select: none;
+    /* Old versions of Firefox */
+    -ms-user-select: none;
+    /* Internet Explorer/Edge */
+    user-select: none;
+    /* Non-prefixed version, currently
+                                    supported by Chrome, Edge, Opera and Firefox */
+}
+
+#mic {
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    height: 56px !important;
+    width: 56px !important;
+    margin: 0 20px;
+    bottom: 20px;
+    box-shadow: 0 8px 6px -6px black;
+    z-index: 20;
+}
+
+#mic-level {
+    width: 10%;
+    height: 0px;
+    box-sizing: border-box;
+    border-bottom: 4px dotted #8d8d8d;
+}
+
+.effect-pulse {
+    background-color: var(--mic-color);
+    color: white;
+    animation: pulse 2000ms infinite;
+    will-change: transform, box-shadow;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(255, 121, 63, 0.7);
+    }
+    70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 10px rgba(255, 121, 63, 0);
+    }
+    100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(255, 121, 63, 0);
+    }
+}
+
+/* loading dots */
+
+.anim-dots:after {
+    content: ' .';
+    animation: dots 1s steps(5, end) infinite;
+}
+
+@keyframes dots {
+    0%, 20% {
+        color: rgba(0, 0, 0, 0);
+        text-shadow: .25em 0 0 rgba(0, 0, 0, 0), .5em 0 0 rgba(0, 0, 0, 0);
+    }
+    40% {
+        color: white;
+        text-shadow: .25em 0 0 rgba(0, 0, 0, 0), .5em 0 0 rgba(0, 0, 0, 0);
+    }
+    60% {
+        text-shadow: .25em 0 0 white, .5em 0 0 rgba(0, 0, 0, 0);
+    }
+    80%, 100% {
+        text-shadow: .25em 0 0 white, .5em 0 0 white;
+    }
+}
+
+/**
+ * ==============================================
+ * Dot Pulse
+ * ==============================================
+ */
+
+.dot-pulse {
+    position: relative;
+    left: -9999px;
+    width: 10px;
+    height: 10px;
+    border-radius: 5px;
+    background-color: #8d8d8d;
+    color: #8d8d8d;
+    box-shadow: 9999px 0 0 -5px #8d8d8d;
+    animation: dotPulse 1.5s infinite linear;
+    animation-delay: .25s;
+}
+
+.dot-pulse::before, .dot-pulse::after {
+    content: '';
+    display: inline-block;
+    position: absolute;
+    top: 0;
+    width: 10px;
+    height: 10px;
+    border-radius: 5px;
+    background-color: #8d8d8d;
+    color: #8d8d8d;
+}
+
+.dot-pulse::before {
+    box-shadow: 9984px 0 0 -5px #8d8d8d;
+    animation: dotPulseBefore 1.5s infinite linear;
+    animation-delay: 0s;
+}
+
+.dot-pulse::after {
+    box-shadow: 10014px 0 0 -5px #8d8d8d;
+    animation: dotPulseAfter 1.5s infinite linear;
+    animation-delay: .5s;
+}
+
+@keyframes dotPulseBefore {
+    0% {
+        box-shadow: 9984px 0 0 -5px #8d8d8d;
+    }
+    30% {
+        box-shadow: 9984px 0 0 2px #8d8d8d;
+    }
+    60%, 100% {
+        box-shadow: 9984px 0 0 -5px #8d8d8d;
+    }
+}
+
+@keyframes dotPulse {
+    0% {
+        box-shadow: 9999px 0 0 -5px #8d8d8d;
+    }
+    30% {
+        box-shadow: 9999px 0 0 2px #8d8d8d;
+    }
+    60%, 100% {
+        box-shadow: 9999px 0 0 -5px #8d8d8d;
+    }
+}
+
+@keyframes dotPulseAfter {
+    0% {
+        box-shadow: 10014px 0 0 -5px #8d8d8d;
+    }
+    30% {
+        box-shadow: 10014px 0 0 2px #8d8d8d;
+    }
+    60%, 100% {
+        box-shadow: 10014px 0 0 -5px #8d8d8d;
+    }
+}
+
+/*-------content-------------*/
+
+.page {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+    padding-top: 80px;
+    color: white;
+    min-height: 100%;
+    width: 100%;
+    text-align: justify;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 300;
+    font-size: 14pt;
+}
+
+.page ul {
+    padding-left: 20px;
+}
+
+.page li {
+    line-height: 150%;
+}
+
+.page img {
+    width: 100%;
+}
+
+.highlight-1 {
+    color: gold;
+}
+
+.img-caption {
+    font-size: smaller;
+    text-align: center;
+}
+
+#page-1 {
+    background: linear-gradient(155deg, #1fb851, #565ccf);
+}
+
+#page-2 {
+    background: linear-gradient(155deg, #252d4a, #aa278c 51%, #ffc08c);
+    /*background: linear-gradient(135deg, #dd0821 0%, #dd0821 30%, #fe6803 100%);*/
+}
+
+#page-3 {
+    background-color: beige;
+    color: grey;
+}
+
+#page-4 {
+    background: linear-gradient(155deg, #e1deff, #e9c8ff);
+    color: grey;
+    border-bottom: 4px dotted grey;
+}
+
+.page-header {
+    box-sizing: border-box;
+    display: flex;
+    width: 100%;
+    height: auto;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+    padding: 40px 20px;
+}
+
+.help-title {
+    font-size: xx-large;
+    color: grey;
+    padding: 40px 20px;
+}
+
+.page-content {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: wrap;
+    flex-grow: 1;
+    max-width: 1280px;
+    padding: 20px 10px;
+    box-sizing: border-box;
+}
+
+.page-col {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    max-width: 100%;
+    flex: 1;
+    padding: 20px 10px;
+}
+
+.page-content p {
+    padding-bottom: 20px;
+    line-height: 150%;
+}
+
+.p-quote {
+    display: inline-block;
+    background-color: rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    border-radius: 20px;
+    word-wrap: break-word;
+    max-width: 100%;
+}
+
+#help {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+#help p {
+    padding-bottom: 20px;
+}
+
+.help-link {
+    color: orange;
+    text-decoration: none;
+}
+
+.help-link:hover {
+    color: orangered;
+    text-decoration: underline;
+}
+
+/*--------------HELP-----------*/
+
+.help-content {
+    max-width: 800px;
+    color: grey;
+}
+
+.img-help {
+    max-width: 50%;
+    float: right;
+    padding: 10px;
+}
+
+/*----PRIVACY--------*/
+
+#privacy {
+    display: flex;
+    justify-content: center;
+    background-color: beige;
+    color: grey;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 300;
+    font-size: 14pt;
+    text-align: justify;
+}
+
+.privacy-content {
+    width: 50%;
+    max-width: 1280px;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.privacy-content p {
+    padding-bottom: 20px;
+    line-height: 150%;
+}
+
+.privacy-content ul {
+    padding-left: 20px;
+}
+
+.privacy-content li {
+    line-height: 150%;
+}
+
+.privacy-content a {
+    color: cadetblue;
+}
+
+.privacy-content a:hover, a:active {
+    color: orangered;
+}
+
+#privacy h1 {
+    text-align: center;
+    font-size: xx-large;
+    font-weight: 700;
+    font-family: Montserrat, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: orangered;
+    padding: 10px 0;
+}
+
+#privacy h2 {
+    text-align: center;
+    font-size: xx-large;
+    font-weight: 700;
+    font-family: Montserrat, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: dimgrey;
+    padding: 40px 0;
+}
+
+#privacy h3 {
+    text-align: center;
+    font-size: inherit;
+    font-weight: lighter;
+    font-family: Montserrat, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: dimgrey;
+    padding: 0 0 40px 0;
+}
+
+#privacy h6 {
+    font-size: x-large;
+    font-weight: lighter;
+    margin-bottom: 10px;
+    border-bottom: solid 1px darkgrey;
+}
+
+/*--------------FOOTER-----------*/
+
+#footer {
+    display: flex;
+    flex: 1;
+    flex-grow: 0;
+    flex-flow: row wrap;
+    justify-content: center;
+    width: 100%;
+    height: auto;
+    background-color: rgba(50, 50, 50, 1.00);
+    font-family: Montserrat, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: grey;
+}
+
+#footer h4 {
+    font-size: 16px;
+    font-weight: 400;
+    margin: 0 0 10px 0;
+    border-bottom: solid 1px grey;
+    width: 100%;
+}
+
+#footer a:hover {
+    color: lightgrey;
+}
+
+#footer ul {
+    list-style-type: none;
+    padding-left: 0px;
+    padding-bottom: 20px;
+}
+
+#footer li {
+    position: relative;
+    padding-left: 25px;
+    margin-bottom: 10px;
+    line-height: 130%;
+}
+
+#about li:before, #footer li:before {
+    position: absolute;
+    top: 0;
+    left: 5px;
+    content: "\276F";
+}
+
+.footer-row {
+    display: flex;
+    flex-direction: row;
+    max-width: 1280px;
+    justify-content: space-around;
+    align-items: center;
+    flex-wrap: wrap;
+    color: grey;
+    padding: 10px;
+}
+
+.footer-row a:link, .footer a:visited {
+    color: grey;
+    text-decoration: none;
+    padding: 0 10px;
+}
+
+.footer-row a:hover {
+    color: white;
+}
+
+#footer-b {
+    min-height: 50px;
+    width: 100%;
+    background-color: rgba(31, 31, 31, 1.00);
+    color: grey;
+    text-align: center;
+}
+
+#footer-b p {
+    padding: 10px;
+}
+
+#footer-b a:link, #footer-b a:visited {
+    color: grey;
+    text-decoration: none;
+}
+
+#footer-b a:hover {
+    color: white;
+}
+
+/*----------------*/
+
+#footer [contentEditable=true]:empty:not(:focus)::before {
+    content: attr(ifempty);
+    color: grey;
+}
+
+#footer fieldset {
+    border: none;
+    padding: 0px;
+}
+
+#footer input {
+    box-sizing: border-box;
+    padding: 5px 20px;
+    color: white;
+    font-family: 'Roboto', sans-serif;
+    font-size: 12pt;
+    border: solid 1px var(--color-bottom-m);
+    margin: 4px 0;
+    background: rgba(50, 50, 50, 1.00);
+}
+
+#footer input:hover {
+    border: solid 1px rgba(128, 183, 154, 1.00);
+    -webkit-transition: all 0.5s ease;
+    transition: all 0.5s ease;
+}
+
+#footer input:focus {
+    background-color: rgba(74, 74, 74, 1.00);
+    -webkit-transition: all 0.5s ease;
+    transition: all 0.5s ease;
+}
+
+#footer input[type=submit]:hover {
+    cursor: pointer;
+    box-shadow: 0 0 7px var(--color-bottom-m);
+}
+
+#footer textarea {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 5px 20px;
+    height: 50px;
+    color: white;
+    font-family: 'Roboto', sans-serif;
+    font-size: 12pt;
+    border: solid 1px var(--color-bottom-m);
+    margin: 5px 0 0 0;
+    background: rgba(50, 50, 50, 1.00);
+    -webkit-transition: all 0.5s ease;
+    transition: all 0.5s ease;
+}
+
+#footer textarea:hover {
+    border: solid 1px rgba(128, 183, 154, 1.00);
+    -webkit-transition: all 0.5s ease;
+    transition: all 0.5s ease;
+}
+
+#footer textarea:focus {
+    background-color: rgba(74, 74, 74, 1.00);
+    height: 200px;
+    -webkit-transition: all 0.5s ease;
+    transition: all 0.5s ease;
+}
+
+.cf_label {
+    display: inline-block;
+    position: relative;
+    padding-left: 20px;
+    margin: 0 0 5px 0;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.cf_label_text {
+    display: inline-flex;
+}
+
+/* Hide the browser's default checkbox */
+
+.cf_label input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+/* Create a custom checkbox */
+
+.checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 15px;
+    width: 15px;
+    border: solid 1px;
+    border-color: var(--color-bottom-m);
+}
+
+/* On mouse-over, add a grey background color */
+
+.cf_label:hover input~.checkmark {
+    border-color: rgb(128, 183, 154);
+}
+
+/* When the checkbox is checked, add a blue background */
+
+.cf_label input:checked~.checkmark {
+    background-color: transparent;
+}
+
+/* Create the checkmark/indicator (hidden when not checked) */
+
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+/* Show the checkmark when checked */
+
+.cf_label input:checked~.checkmark:after {
+    display: block;
+}
+
+/* Style the checkmark/indicator */
+
+.cf_label .checkmark:after {
+    left: 3px;
+    top: 0px;
+    width: 5px;
+    height: 10px;
+    border: solid;
+    color: #80B79A;
+    border-width: 0 3px 3px 0;
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    transform: rotate(45deg);
+}
+
+#mailstatus {
+    color: yellow;
+}
+
+/*---------FOOTER END------------*/
+
+/* The snackbar - position it at the bottom and in the middle of the screen */
+
+#snackbar {
+    box-sizing: border-box;
+    visibility: hidden;
+    /* Hidden by default. Visible on click */
+    width: 250px;
+    word-break: break-word;
+    /* Set a default minimum width */
+    margin-left: -125px;
+    /* Divide value of min-width by 2 */
+    background-color: #333;
+    /* Black background color */
+    color: #fff;
+    /* White text color */
+    text-align: center;
+    /* Centered text */
+    border-radius: 2px;
+    /* Rounded borders */
+    padding: 16px;
+    /* Padding */
+    position: fixed;
+    /* Sit on top of the screen */
+    z-index: 1000;
+    /* Add a z-index if needed */
+    left: 50%;
+    /* Center the snackbar */
+    bottom: 130px;
+    /* 30px from the bottom */
+}
+
+/* Show the snackbar when clicking on a button (class added with JavaScript) */
+
+#snackbar.show {
+    visibility: visible;
+    /* Show the snackbar */
+    /* Add animation: Take 0.5 seconds to fade in and out the snackbar.
+    However, delay the fade out process for 2.5 seconds */
+    -webkit-animation: fadein 0.5s, fadeout 0.5s 3.5s;
+    animation: fadein 0.5s, fadeout 0.5s 3.5s;
+}
+
+/* Animations to fade the snackbar in and out */
+
+@-webkit-keyframes fadein {
+    from {
+        bottom: 0;
+        opacity: 0;
+    }
+    to {
+        bottom: 130px;
+        opacity: 1;
+    }
+}
+
+@keyframes fadein {
+    from {
+        bottom: 0;
+        opacity: 0;
+    }
+    to {
+        bottom: 130px;
+        opacity: 1;
+    }
+}
+
+@-webkit-keyframes fadeout {
+    from {
+        bottom: 130px;
+        opacity: 1;
+    }
+    to {
+        bottom: 0;
+        opacity: 0;
+    }
+}
+
+@keyframes fadeout {
+    from {
+        bottom: 130px;
+        opacity: 1;
+    }
+    to {
+        bottom: 0;
+        opacity: 0;
+    }
+}
+
+/* --- SNACKBAR END ---- */
+
+@media screen and (max-width: 1200px) {
+    #panel-right {
+        display: none;
+        z-index: 50;
+        width: auto;
+        left: 10px;
+        right: 10px;
+        top: 70px;
+        bottom: 100px;
+        position: absolute;
+        background-color: beige;
+    }
+}
+
+@media screen and (max-width: 1000px) {
+    #panel-left {
+        min-width: 164px;
+        max-width: 164px;
+        min-height: 60px;
+        height: 100%;
+        max-height: 100%;
+    }
+}
+
+@media screen and (max-width: 660px) {
+    .ss-hide-1{
+        display: none;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .width-limiter {
+        width: 100%;
+    }
+    #main {
+        padding: 0px;
+    }
+    #panel-left {
+        display: none;
+    }
+    #note-wrapper-outer {
+        margin: 0px;
+    }
+    #speech-display {
+        max-width: 95%;
+    }
+    #popup-lang {
+        max-width: 95%;
+    }
+    .page-content {
+        flex-direction: column;
+        max-width: 100%;
+    }
+    .img-help {
+        max-width: 100%;
+        padding: 0px;
+    }
+    .ss-hide {
+        display: none;
+    }
+    #brand {
+        font-size: 16px;
+    }
+    #logo {
+        width: 28px;
+        height: 28px;
+    }
+    .privacy-content {
+        width: 100%;
+    }
+    .popup-menu {
+        max-height: 100%;
+    }
+    #panel-right {
+        left: 10px;
+        right: 10px;
+        top: 70px;
+        bottom: 10px;
+    }
+}
+
+@media screen and (max-width: 600px) and (min-height: 350px) {
+    #top-ad {
+        display: block;
+    }
+    .g-center {
+        display: block;
+
+    }
+}
+
+@media screen and (max-width: 320px) {
+    #b-copy {
+        display: none;
+    }
+    #b-send {
+        display: none;
+    }
+}
+
+@media print {
+    body * {
+        visibility: none;
+    }
+    #note, #note * {
+        visibility: visible;
+    }
+    #note {
+        position: absolute;
+        left: 0;
+        top: 0;
+    }
+}</style>
+</head>
+
+<body>
+
+    <div id="app">
+        <div id="top-navbar">
+            <div class="width-limiter">
+                <div id="b-group">
+                    <button class="wave" id="b-lang">
+                        <div id="lang-flag-display"></div>
+
+                        <div id="lang-name-display">English (US)</div>
+
+                    </button>
+
+
+                </div>
+            </div>
+        </div>
+        <div id="main">
+            <div id="note-wrapper-outer">
+                <div id="warning" class="hidden"></div>
+                <div id="note-title">
+
+                    <div class="group-row">
+                        <button class="wave" id="b-delete" title="Clear the page.&#10; Click 'undo' button (CTRL+Z) to recover.">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#FFFFFF">
+                                <path d="M0 0h24v24H0V0z" fill="none" />
+                                <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6z" />
+                            </svg>
+                        </button>
+
+
+                        <button class="wave" id="b-note-download" title="Download">
+                            <svg xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" height="24px" viewBox="0 0 24 24" width="24px" fill="#FFFFFF">
+                                <g>
+                                    <rect fill="none" height="24" width="24" />
+                                </g>
+                                <g>
+                                    <path d="M18,15v3H6v-3H4v3c0,1.1,0.9,2,2,2h12c1.1,0,2-0.9,2-2v-3H18z M17,11l-1.41-1.41L13,12.17V4h-2v8.17L8.41,9.59L7,11l5,5 L17,11z" />
+                                </g>
+                            </svg>
+                        </button>
+
+
+                        <button class="wave ss-hide-1" id="b-print" title="Print">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#FFFFFF">
+                                <path d="M0 0h24v24H0V0z" fill="none" />
+                                <path d="M19 8h-1V3H6v5H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zM8 5h8v3H8V5zm8 12v2H8v-4h8v2zm2-2v-2H6v2H4v-4c0-.55.45-1 1-1h14c.55 0 1 .45 1 1v4h-2z" />
+                                <circle cx="18" cy="11.5" r="1" />
+                            </svg>
+                        </button>
+
+
+                        <span class=separator>|</span>
+
+
+                        <button class="wave ss-hide" id="b-bold" title="Bold&#10;CTRL+B">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#FFFFFF">
+                                <path d="M0 0h24v24H0V0z" fill="none" />
+                                <path d="M15.6 10.79c.97-.67 1.65-1.77 1.65-2.79 0-2.26-1.75-4-4-4H7v14h7.04c2.09 0 3.71-1.7 3.71-3.79 0-1.52-.86-2.82-2.15-3.42zM10 6.5h3c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-3v-3zm3.5 9H10v-3h3.5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5z" />
+                            </svg>
+
+                        </button>
+                        <button class="wave ss-hide" id="b-italic" title="Italic&#10;CTRL+I">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#FFFFFF">
+                                <path d="M0 0h24v24H0V0z" fill="none" />
+                                <path d="M10 4v3h2.21l-3.42 8H6v3h8v-3h-2.21l3.42-8H18V4h-8z" />
+                            </svg>
+                        </button>
+                        <button class="wave ss-hide" id="b-underline" title="Underline&#10;CTRL+U">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#FFFFFF">
+                                <path d="M0 0h24v24H0V0z" fill="none" />
+                                <path d="M12 17c3.31 0 6-2.69 6-6V3h-2.5v8c0 1.93-1.57 3.5-3.5 3.5S8.5 12.93 8.5 11V3H6v8c0 3.31 2.69 6 6 6zm-7 2v2h14v-2H5z" />
+                            </svg>
+                        </button>
+
+
+                    </div>
+
+
+                    <div class="group-row">
+
+                        <button class="wave" id="b-settings" title="Settings">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#FFFFFF">
+                                <path d="M0 0h24v24H0V0z" fill="none" />
+                                <path d="M19.43 12.98c.04-.32.07-.64.07-.98 0-.34-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.09-.16-.26-.25-.44-.25-.06 0-.12.01-.17.03l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.06-.02-.12-.03-.18-.03-.17 0-.34.09-.43.25l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98 0 .33.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.09.16.26.25.44.25.06 0 .12-.01.17-.03l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.06.02.12.03.18.03.17 0 .34-.09.43-.25l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zm-1.98-1.71c.04.31.05.52.05.73 0 .21-.02.43-.05.73l-.14 1.13.89.7 1.08.84-.7 1.21-1.27-.51-1.04-.42-.9.68c-.43.32-.84.56-1.25.73l-1.06.43-.16 1.13-.2 1.35h-1.4l-.19-1.35-.16-1.13-1.06-.43c-.43-.18-.83-.41-1.23-.71l-.91-.7-1.06.43-1.27.51-.7-1.21 1.08-.84.89-.7-.14-1.13c-.03-.31-.05-.54-.05-.74s.02-.43.05-.73l.14-1.13-.89-.7-1.08-.84.7-1.21 1.27.51 1.04.42.9-.68c.43-.32.84-.56 1.25-.73l1.06-.43.16-1.13.2-1.35h1.39l.19 1.35.16 1.13 1.06.43c.43.18.83.41 1.23.71l.91.7 1.06-.43 1.27-.51.7 1.21-1.07.85-.89.7.14 1.13zM12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 6c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z" />
+                            </svg>
+                        </button>
+
+
+
+                        <button class="wave" id="b-fullscreen" title="Fullscreen toggle">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#FFFFFF">
+                                <path d="M0 0h24v24H0V0z" fill="none" />
+                                <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z" />
+                            </svg>
+                        </button>
+
+
+                        <button class="wave" id="b-dictionary" title="Show/hide the dictionary">
+                            <svg xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" height="24px" viewBox="0 0 24 24" width="24px" fill="#FFFFFF">
+                                <g>
+                                    <rect fill="none" height="24" width="24" />
+                                </g>
+                                <g>
+                                    <g />
+                                    <g>
+                                        <path d="M21,5c-1.11-0.35-2.33-0.5-3.5-0.5c-1.95,0-4.05,0.4-5.5,1.5c-1.45-1.1-3.55-1.5-5.5-1.5S2.45,4.9,1,6v14.65 c0,0.25,0.25,0.5,0.5,0.5c0.1,0,0.15-0.05,0.25-0.05C3.1,20.45,5.05,20,6.5,20c1.95,0,4.05,0.4,5.5,1.5c1.35-0.85,3.8-1.5,5.5-1.5 c1.65,0,3.35,0.3,4.75,1.05c0.1,0.05,0.15,0.05,0.25,0.05c0.25,0,0.5-0.25,0.5-0.5V6C22.4,5.55,21.75,5.25,21,5z M21,18.5 c-1.1-0.35-2.3-0.5-3.5-0.5c-1.7,0-4.15,0.65-5.5,1.5V8c1.35-0.85,3.8-1.5,5.5-1.5c1.2,0,2.4,0.15,3.5,0.5V18.5z" />
+                                        <g>
+                                            <path d="M17.5,10.5c0.88,0,1.73,0.09,2.5,0.26V9.24C19.21,9.09,18.36,9,17.5,9c-1.7,0-3.24,0.29-4.5,0.83v1.66 C14.13,10.85,15.7,10.5,17.5,10.5z" />
+                                            <path d="M13,12.49v1.66c1.13-0.64,2.7-0.99,4.5-0.99c0.88,0,1.73,0.09,2.5,0.26V11.9c-0.79-0.15-1.64-0.24-2.5-0.24 C15.8,11.66,14.26,11.96,13,12.49z" />
+                                            <path d="M17.5,14.33c-1.7,0-3.24,0.29-4.5,0.83v1.66c1.13-0.64,2.7-0.99,4.5-0.99c0.88,0,1.73,0.09,2.5,0.26v-1.52 C19.21,14.41,18.36,14.33,17.5,14.33z" />
+                                        </g>
+                                    </g>
+                                </g>
+                            </svg>
+                        </button>
+
+                    </div>
+
+
+                </div>
+
+
+                <div id="note-wrapper-inner">
+
+
+
+
+
+               <!-- do not split this line--><div id="note" contenteditable="true"><p class="p_edit dir_LTR"></p></div><!-- do not split this line-->
+
+
+
+
+
+                </div>
+                <!-- ad center 
+                <div class="g-center">
+                </div>
+                -->
+                <div id="note-info">
+                    <div class="group-row">
+                    </div>
+                    <div class="group-row">
+                        <div id="word-counter"></div>
+                    </div>
+                </div>
+
+
+            </div>
+            <div id="panel-right">
+
+
+                <div id="dictionary">
+                    <div id="dictionary-title">
+                        <!--<span id="commands-name">Commands</span>-->
+                        <div id="group-b-dict">
+
+                            <button class="wave hidden" id="b-reset-cc" title="Reset commands">
+                                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#FFFFFF">
+                                    <path d="M0 0h24v24H0V0z" fill="none" />
+                                    <path d="M14 12c0-1.1-.9-2-2-2s-2 .9-2 2 .9 2 2 2 2-.9 2-2zm-2-9c-4.97 0-9 4.03-9 9H0l4 4 4-4H5c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.51 0-2.91-.49-4.06-1.3l-1.42 1.44C8.04 20.3 9.94 21 12 21c4.97 0 9-4.03 9-9s-4.03-9-9-9z" />
+                                </svg>
+                            </button>
+
+                            <button class="wave hidden" id="b-import-cc" title="Import commands">
+                                <svg xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" height="24px" viewBox="0 0 24 24" width="24px" fill="#FFFFFF">
+                                    <g>
+                                        <rect fill="none" height="24" width="24" />
+                                    </g>
+                                    <g>
+                                        <path d="M18,15v3H6v-3H4v3c0,1.1,0.9,2,2,2h12c1.1,0,2-0.9,2-2v-3H18z M17,11l-1.41-1.41L13,12.17V4h-2v8.17L8.41,9.59L7,11l5,5 L17,11z" />
+                                    </g>
+                                </svg>
+                            </button>
+
+                            <button class="wave hidden" id="b-export-cc" title="Export commands">
+                                <svg xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" height="24px" viewBox="0 0 24 24" width="24px" fill="#FFFFFF">
+                                    <g>
+                                        <rect fill="none" height="24" width="24" />
+                                    </g>
+                                    <g>
+                                        <path d="M18,15v3H6v-3H4v3c0,1.1,0.9,2,2,2h12c1.1,0,2-0.9,2-2v-3H18z M7,9l1.41,1.41L11,7.83V16h2V7.83l2.59,2.58L17,9l-5-5L7,9z" />
+                                    </g>
+                                </svg>
+                            </button>
+
+                            <button class="wave" id="b-edit-cc" title="Edit commands">
+                                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#FFFFFF">
+                                    <path d="M0 0h24v24H0V0z" fill="none" />
+                                    <path d="M14.06 9.02l.92.92L5.92 19H5v-.92l9.06-9.06M17.66 3c-.25 0-.51.1-.7.29l-1.83 1.83 3.75 3.75 1.83-1.83c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.2-.2-.45-.29-.71-.29zm-3.6 3.19L3 17.25V21h3.75L17.81 9.94l-3.75-3.75z" />
+                                </svg>
+                            </button>
+
+                            <button class="wave" id='b-toggle-commands' title="ON/OFF">
+                                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#FFFFFF">
+                                    <path d="M0 0h24v24H0z" fill="none" />
+                                    <path d="M17 6H7c-3.31 0-6 2.69-6 6s2.69 6 6 6h10c3.31 0 6-2.69 6-6s-2.69-6-6-6zm0 10H7c-2.21 0-4-1.79-4-4s1.79-4 4-4h10c2.21 0 4 1.79 4 4s-1.79 4-4 4zm0-7c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
+                                </svg>
+                            </button>
+
+                            <button class="wave" id="commands-b-close" title="Hide">
+                                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#FFFFFF">
+                                    <path d="M0 0h24v24H0V0z" fill="none" />
+                                    <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="dict-main">
+                        <div id="dict-content"></div>
+
+                        <button class="wave hidden" id="dict-add-word" title="Add a new custom command.&#10;Ex:&#10;Voice command on the left column: 'question mark'&#10;Result on the right column: '?'">
+                            +
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div id="bottom-navbar">
+
+            <button class="wave" id="b-copy" title="Copy all text"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#FFFFFF">
+                    <path d="M0 0h24v24H0z" fill="none" />
+                    <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" />
+                </svg></button>
+            <button class="wave" id="b-undo" title="Undo&#10;CTRL + Z"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#FFFFFF">
+                    <path d="M0 0h24v24H0V0z" fill="none" />
+                    <path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z" />
+                </svg></button>
+            <div>
+                <button class="wave" id="mic" title="Start / stop&#10;'ESC' key"><svg xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" height="24px" viewBox="0 0 24 24" width="24px" fill="#FFFFFF">
+                        <g>
+                            <rect fill="none" height="24" width="24" />
+                            <rect fill="none" height="24" width="24" />
+                            <rect fill="none" height="24" width="24" />
+                        </g>
+                        <g>
+                            <g />
+                            <g>
+                                <path d="M12,14c1.66,0,3-1.34,3-3V5c0-1.66-1.34-3-3-3S9,3.34,9,5v6C9,12.66,10.34,14,12,14z" />
+                                <path d="M17,11c0,2.76-2.24,5-5,5s-5-2.24-5-5H5c0,3.53,2.61,6.43,6,6.92V21h2v-3.08c3.39-0.49,6-3.39,6-6.92H17z" />
+                            </g>
+                        </g>
+                    </svg></button>
+            </div>
+            <button class="wave" id="b-redo" title="Redo&#10;CTRL + Y"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#FFFFFF">
+                    <path d="M0 0h24v24H0V0z" fill="none" />
+                    <path d="M18.4 10.6C16.55 8.99 14.15 8 11.5 8c-4.65 0-8.58 3.03-9.96 7.22L3.9 16c1.05-3.19 4.05-5.5 7.6-5.5 1.95 0 3.73.72 5.12 1.88L13 16h9V7l-3.6 3.6z" />
+                </svg></button>
+
+            <button class="wave" id="b-send" title="Send"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#FFFFFF">
+                    <path d="M0 0h24v24H0z" fill="none" />
+                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+                </svg></button>
+        </div>
+
+        <!---note download menu----->
+
+        <div id="m-download" class="popup-overlay noselect">
+            <div class="popup-menu">
+                <div class="popup-menu-title">
+                    <div class="popup-menu-title-text">Download</div>
+                    <div class="popup-menu-close">
+                        <button class="wave" id="m-download-b-close">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#FFFFFF">
+                                <path d="M0 0h24v24H0V0z" fill="none" />
+                                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="popup-menu-content">
+
+                    <button id="b-download-doc" class="wave" title="download a .doc file">
+                        <svg height="32px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve">
+                            <path style="fill:#E2E5E7;" d="M128,0c-17.6,0-32,14.4-32,32v448c0,17.6,14.4,32,32,32h320c17.6,0,32-14.4,32-32V128L352,0H128z" />
+                            <path style="fill:#B0B7BD;" d="M384,128h96L352,0v96C352,113.6,366.4,128,384,128z" />
+                            <polygon style="fill:#CAD1D8;" points="480,224 384,128 480,128 " />
+                            <path style="fill:darkblue" d="M416,416c0,8.8-7.2,16-16,16H48c-8.8,0-16-7.2-16-16V256c0-8.8,7.2-16,16-16h352c8.8,0,16,7.2,16,16
+	V416z" />
+                            <g>
+                                <path style="fill:#FFFFFF;" d="M92.576,384c-4.224,0-8.832-2.32-8.832-7.936v-72.656c0-4.608,4.608-7.936,8.832-7.936h29.296
+		c58.464,0,57.168,88.528,1.136,88.528H92.576z M100.64,311.072v57.312h21.232c34.544,0,36.064-57.312,0-57.312H100.64z" />
+                                <path style="fill:#FFFFFF;" d="M228,385.28c-23.664,1.024-48.24-14.72-48.24-46.064c0-31.472,24.56-46.944,48.24-46.944
+		c22.384,1.136,45.792,16.624,45.792,46.944C273.792,369.552,250.384,385.28,228,385.28z M226.592,308.912
+		c-14.336,0-29.936,10.112-29.936,30.32c0,20.096,15.616,30.336,29.936,30.336c14.72,0,30.448-10.24,30.448-30.336
+		C257.04,319.008,241.312,308.912,226.592,308.912z" />
+                                <path style="fill:#FFFFFF;" d="M288.848,339.088c0-24.688,15.488-45.92,44.912-45.92c11.136,0,19.968,3.328,29.296,11.392
+		c3.456,3.184,3.84,8.816,0.384,12.4c-3.456,3.056-8.704,2.688-11.776-0.384c-5.232-5.504-10.608-7.024-17.904-7.024
+		c-19.696,0-29.152,13.952-29.152,29.552c0,15.872,9.328,30.448,29.152,30.448c7.296,0,14.08-2.96,19.968-8.192
+		c3.952-3.072,9.456-1.552,11.76,1.536c2.048,2.816,3.056,7.552-1.408,12.016c-8.96,8.336-19.696,10-30.336,10
+		C302.8,384.912,288.848,363.776,288.848,339.088z" />
+                            </g>
+                            <path style="fill:#CAD1D8;" d="M400,432H96v16h304c8.8,0,16-7.2,16-16v-16C416,424.8,408.8,432,400,432z" />
+                        </svg>
+                        <span>download a .doc file</span>
+
+                    </button>
+
+                    <button id="b-download-txt" class="wave" title="download a .txt file">
+
+                        <svg height="32px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve">
+                            <path style="fill:#E2E5E7;" d="M128,0c-17.6,0-32,14.4-32,32v448c0,17.6,14.4,32,32,32h320c17.6,0,32-14.4,32-32V128L352,0H128z" />
+                            <path style="fill:#B0B7BD;" d="M384,128h96L352,0v96C352,113.6,366.4,128,384,128z" />
+                            <polygon style="fill:#CAD1D8;" points="480,224 384,128 480,128 " />
+                            <path style="fill:darkorange;" d="M416,416c0,8.8-7.2,16-16,16H48c-8.8,0-16-7.2-16-16V256c0-8.8,7.2-16,16-16h352c8.8,0,16,7.2,16,16
+	V416z" />
+                            <g>
+                                <path style="fill:#FFFFFF;" d="M132.784,311.472H110.4c-11.136,0-11.136-16.368,0-16.368h60.512c11.392,0,11.392,16.368,0,16.368
+		h-21.248v64.592c0,11.12-16.896,11.392-16.896,0v-64.592H132.784z" />
+                                <path style="fill:#FFFFFF;" d="M224.416,326.176l22.272-27.888c6.656-8.688,19.568,2.432,12.288,10.752
+		c-7.68,9.088-15.728,18.944-23.424,29.024l26.112,32.496c7.024,9.6-7.04,18.816-13.952,9.344l-23.536-30.192l-23.152,30.832
+		c-6.528,9.328-20.992-1.152-13.68-9.856l25.696-32.624c-8.048-10.096-15.856-19.936-23.664-29.024
+		c-8.064-9.6,6.912-19.44,12.784-10.48L224.416,326.176z" />
+                                <path style="fill:#FFFFFF;" d="M298.288,311.472H275.92c-11.136,0-11.136-16.368,0-16.368h60.496c11.392,0,11.392,16.368,0,16.368
+		h-21.232v64.592c0,11.12-16.896,11.392-16.896,0V311.472z" />
+                            </g>
+                            <path style="fill:#CAD1D8;" d="M400,432H96v16h304c8.8,0,16-7.2,16-16v-16C416,424.8,408.8,432,400,432z" />
+
+                        </svg>
+
+                        <span>download a .txt file</span>
+
+                    </button>
+
+                </div>
+
+            </div>
+        </div>
+        <!---note download menu END ----->
+
+
+        <!---note font type select menu----->
+
+        <div id="m-font-select" class="popup-overlay noselect">
+            <div class="popup-menu">
+                <div class="popup-menu-title">
+                    <div class="popup-menu-title-text">Select font</div>
+                    <div class="popup-menu-close">
+                        <button class="wave" id="popup-menu-close">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#FFFFFF">
+                                <path d="M0 0h24v24H0V0z" fill="none" />
+                                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="popup-menu-content">
+
+                    <button id="b-download-doc" class="wave">
+
+                        <span>download a .doc file</span>
+
+                    </button>
+
+                    <button id="b-download-txt" class="wave">
+
+                        <span>download a .txt file</span>
+
+                    </button>
+
+                </div>
+
+            </div>
+        </div>
+
+
+
+        <!---settings menu----->
+
+        <div id="m-settings" class="popup-overlay noselect">
+            <div class="popup-menu">
+                <div class="popup-menu-title">
+                    <div class="popup-menu-title-text">Settings</div>
+                    <div class="popup-menu-close">
+                        <button class="wave" id="settings-b-close">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#FFFFFF">
+                                <path d="M0 0h24v24H0V0z" fill="none" />
+                                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="popup-menu-content">
+
+
+                    <div class="popup-menu-row">
+                        <span>Autosave (uses your browser's cache)</span>
+                        <label class="switch">
+                            <input type="checkbox" id="settings-autosave">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+
+                    <span class="settings-hint">Recover your text after accidentally closing the app or navigating to another page (won't work if the cache gets cleared). Don't use this option when using public computers, use the "download" button instead.</span>
+
+
+                    <div class="popup-menu-row">
+                        <span>Capitalize first letter in a new sentence</span>
+                        <label class="switch">
+                            <input type="checkbox" checked id="settings-cap-first-letter">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div class="popup-menu-row">
+                        <span>Capitalize proper nouns</span>
+                        <label class="switch">
+                            <input type="checkbox" checked id="settings-cap-auto">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <span class="settings-hint">E.g. John, Oxford University, Monday, etc. Sometimes auto capitalization might not work correctly (e.g. <b>T</b>arget (the name of a store) / <b>t</b>arget (a result that you try to achieve)</span>
+
+
+                    <div class="popup-menu-row">
+                        <span>Capitalize every letter</span>
+                        <label class="switch">
+                            <input type="checkbox" checked id="settings-cap-every-letter">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div class="popup-menu-row">
+                        <span>Word counter</span>
+                        <label class="switch">
+                            <input type="checkbox" id="settings-word-counter">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div class="popup-menu-row">
+                        <span>Dark theme</span>
+                        <label class="switch">
+                            <input type="checkbox" id="settings-dark-theme">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div class="popup-menu-row">
+                        <span>Default font type</span>
+                        <button id="b-font-type" class="wave">Times New Roman</button>
+                    </div>
+                    <div class="popup-menu-row">
+                        <span>Default font size</span>
+                        <div class="popup-menu-row">
+                            <button id="b-font-size-minus" class="wave">-</button>
+                            <span id="b-font-size">100%</span>
+
+                            <button id="b-font-size-plus" class="wave">+</button>
+                        </div>
+                    </div>
+                    <div class="popup-menu-row">
+                        <span id="app-info">app v.2.01</span>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!---settings font select list ----->
+
+        <div id="m-fontlist" class="popup-overlay noselect">
+            <div class="popup-menu">
+                <div class="popup-menu-title">
+                    <div class="popup-menu-title-text">Select font type</div>
+                    <div class="popup-menu-close">
+                        <button class="wave" id="m-fontlist-b-close">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#FFFFFF">
+                                <path d="M0 0h24v24H0V0z" fill="none" />
+                                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="font-list" class="popup-menu-content">
+
+                </div>
+
+            </div>
+        </div>
+
+       
+
+        <!--dialog----->
+
+        <div id="overlay-dialog" class="noselect">
+
+            <div id="dialog">
+                <div id="dialog-title">
+                    <div id="dialog-title-text">Are you sure?</div>
+                    <button class="wave" id="dialog-b-close">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#FFFFFF">
+                            <path d="M0 0h24v24H0V0z" fill="none" />
+                            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z" />
+                        </svg>
+                    </button>
+                </div>
+                <div id="dialog-content">Are you sure?</div>
+                <div id="dialog-response">
+
+                    <button class="wave" id="dialog-no">NO</button>
+                    <button class="wave" id="dialog-yes">YES</button>
+                </div>
+            </div>
+        </div>
+
+        <!--language----->
+
+        <div id="overlay-lang" class="noselect">
+            <div id="popup-lang">
+                <div id="modal-title">
+                    <div>
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#FFFFFF">
+                            <path d="M0 0h24v24H0V0z" fill="none" />
+                            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+                        </svg>
+                    </div>
+                    <div id="lang-menu-filter" contenteditable="true"></div>
+                    <button class="wave" id="modal-b-close-lang">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#FFFFFF">
+                            <path d="M0 0h24v24H0V0z" fill="none" />
+                            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z" />
+                        </svg>
+                    </button>
+                </div>
+                <div id="lang-menu-content"></div>
+            </div>
+        </div>
+
+        <div id="overlay-speech" class="hidden">
+            <div id="speech-box">
+                <div id="mic-level"></div>
+                <div id="speech-display">
+
+                    <div class="anim-dots"></div>
+
+                </div>
+            </div>
+        </div>
+
+        <div id="snackbar">...</div>
+
+    </div>
+
+    <script src="/voice.js"></script>
+</body>
+
+</html>
